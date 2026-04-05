@@ -9,6 +9,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -149,13 +150,13 @@ private val MindFlowTypography = Typography(
         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
     ),
     bodyLarge = Typography().bodyLarge.copy(
-        lineHeight = androidx.compose.ui.unit.TextUnit(1.6f, androidx.compose.ui.unit.TextUnit.Type.Sp)
+        lineHeight = androidx.compose.ui.unit.TextUnit(1.6f, androidx.compose.ui.unit.TextUnitType.Sp)
     ),
     bodyMedium = Typography().bodyMedium.copy(
-        lineHeight = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnit.Type.Sp)
+        lineHeight = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
     ),
     bodySmall = Typography().bodySmall.copy(
-        lineHeight = androidx.compose.ui.unit.TextUnit(1.4f, androidx.compose.ui.unit.TextUnit.Type.Sp)
+        lineHeight = androidx.compose.ui.unit.TextUnit(1.4f, androidx.compose.ui.unit.TextUnitType.Sp)
     ),
     labelLarge = Typography().labelLarge.copy(
         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium

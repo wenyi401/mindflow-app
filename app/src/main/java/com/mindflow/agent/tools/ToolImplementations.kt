@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Built-in tool implementations for the agent system
  */
-class WebSearchTool(private val context: Context) : Tool {
+class WebSearchTool(private val context: Context) : ToolExecutor {
     override val name = "web_search"
     override val description = "Search the web for information"
     override val inputSchema = """{"type":"object","properties":{"query":{"type":"string","description":"Search query"}},"required":["query"]}"""
@@ -64,7 +64,7 @@ class WebSearchTool(private val context: Context) : Tool {
     private fun errorResult(message: String) = """{"error": "$message"}"""
 }
 
-class CalculatorTool : Tool {
+class CalculatorTool : ToolExecutor {
     override val name = "calculator"
     override val description = "Evaluate mathematical expressions"
     override val inputSchema = """{"type":"object","properties":{"expression":{"type":"string","description":"Mathematical expression (e.g., 2+2, sqrt(16), sin(pi/2))"}},"required":["expression"]}"""
@@ -177,7 +177,7 @@ class CalculatorTool : Tool {
     }
 }
 
-class TextSummarizerTool : Tool {
+class TextSummarizerTool : ToolExecutor {
     override val name = "text_summarizer"
     override val description = "Summarize long text into a concise summary"
     override val inputSchema = """{"type":"object","properties":{"text":{"type":"string","description":"Text to summarize"},"maxLength":{"type":"integer","description":"Maximum summary length","default":200}},"required":["text"]}"""
@@ -207,7 +207,7 @@ class TextSummarizerTool : Tool {
 
 class KnowledgeQueryTool(
     private val knowledgeRepository: com.mindflow.domain.repository.KnowledgeRepository
-) : Tool {
+) : ToolExecutor {
     override val name = "knowledge_query"
     override val description = "Query the local knowledge base for relevant information"
     override val inputSchema = """{"type":"object","properties":{"query":{"type":"string","description":"Search query"},"limit":{"type":"integer","description":"Maximum results","default":5}},"required":["query"]}"""
@@ -229,7 +229,7 @@ class KnowledgeQueryTool(
     }
 }
 
-class DateTimeTool : Tool {
+class DateTimeTool : ToolExecutor {
     override val name = "datetime"
     override val description = "Get current date and time information"
     override val inputSchema = """{"type":"object","properties":{"format":{"type":"string","description":"Output format (iso, readable, unix)","default":"readable"}},"required":[]}"""
@@ -253,7 +253,7 @@ class DateTimeTool : Tool {
     }
 }
 
-class UrlFetchTool(private val context: Context) : Tool {
+class UrlFetchTool(private val context: Context) : ToolExecutor {
     override val name = "url_fetch"
     override val description = "Fetch and extract content from a URL"
     override val inputSchema = """{"type":"object","properties":{"url":{"type":"string","description":"URL to fetch"},"maxLength":{"type":"integer","description":"Maximum content length","default":2000}},"required":["url"]}"""
@@ -301,7 +301,7 @@ class UrlFetchTool(private val context: Context) : Tool {
     }
 }
 
-class ConverterTool : Tool {
+class ConverterTool : ToolExecutor {
     override val name = "converter"
     override val description = "Convert between different units or formats"
     override val inputSchema = """{"type":"object","properties":{"type":{"type":"string","description":"Conversion type (length, weight, temp, currency)"},"value":{"type":"number","description":"Value to convert"},"from":{"type":"string","description":"Source unit"},"to":{"type":"string","description":"Target unit"}},"required":["type","value","from","to"]}"""
@@ -386,7 +386,7 @@ class ConverterTool : Tool {
  * Factory for creating tool instances
  */
 object ToolFactory {
-    fun createTool(name: String, context: Context, knowledgeRepository: com.mindflow.domain.repository.KnowledgeRepository? = null): Tool? {
+    fun createTool(name: String, context: Context, knowledgeRepository: com.mindflow.domain.repository.KnowledgeRepository? = null): ToolExecutor? {
         return when (name) {
             "web_search" -> WebSearchTool(context)
             "calculator" -> CalculatorTool()

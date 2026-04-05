@@ -106,8 +106,9 @@ class AgentEngine(
             )
             
             if (result.isFailure) {
-                onError(result.exceptionOrNull()?.message ?: "Unknown error")
-                return result.map { it.content }
+                val error = result.exceptionOrNull() ?: Exception("Unknown error")
+                onError(error.message ?: "Unknown error")
+                return Result.failure(error)
             }
             
             val response = result.getOrNull()!!
@@ -148,7 +149,14 @@ class AgentEngine(
         
         return try {
             // Use the tool factory to get the actual tool implementation
-            val toolImpl = ToolFactory.createTool(tool.name, context ?: android.content.ContextImpl.getApplicationContext(null), knowledgeRepository)
+            val ctx = context ?: return ToolResult(
+                toolCallId = "",
+                success = false,
+                output = "",
+                error = "Context not available for tool execution",
+                executionTimeMs = System.currentTimeMillis() - startTime
+            )
+            val toolImpl = ToolFactory.createTool(tool.name, ctx, knowledgeRepository)
             
             if (toolImpl == null) {
                 return ToolResult(

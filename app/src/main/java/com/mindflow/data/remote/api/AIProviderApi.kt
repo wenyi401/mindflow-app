@@ -1,6 +1,6 @@
 package com.mindflow.data.remote.api
 
-import com.mindflow.data.remote.dto.*
+
 import retrofit2.Response
 import retrofit2.http.*
 
