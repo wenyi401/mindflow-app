@@ -68,7 +68,7 @@ val appModule = module {
         MemoryManager(get(), get()) 
     }
     single {
-        AgentEngine(get(), get(), get(), get(), get())
+        AgentEngine(get(), get(), get(), get(), get(), androidContext())
     }
 }
 

@@ -1,5 +1,7 @@
 package com.mindflow.agent
 
+import android.content.Context
+import com.mindflow.agent.tools.*
 import com.mindflow.domain.model.*
 import com.mindflow.domain.repository.*
 import kotlinx.coroutines.flow.first
@@ -14,7 +16,8 @@ class AgentEngine(
     private val toolRepository: ToolRepository,
     private val memoryRepository: MemoryRepository,
     private val knowledgeRepository: KnowledgeRepository,
-    private val aiService: AIService
+    private val aiService: AIService,
+    private val context: Context? = null
 ) {
     
     /**
@@ -144,13 +147,43 @@ class AgentEngine(
         val startTime = System.currentTimeMillis()
         
         return try {
+            // Use the tool factory to get the actual tool implementation
+            val toolImpl = ToolFactory.createTool(tool.name, context ?: android.content.ContextImpl.getApplicationContext(null), knowledgeRepository)
+            
+            if (toolImpl == null) {
+                return ToolResult(
+                    toolCallId = "",
+                    success = false,
+                    output = "",
+                    error = "Tool implementation not found: ${tool.name}",
+                    executionTimeMs = System.currentTimeMillis() - startTime
+                )
+            }
+            
             val arguments = Json.parseToJsonElement(argumentsJson).jsonObject
-            val output = when (tool.name) {
-                "web_search" -> executeWebSearch(arguments)
-                "calculator" -> executeCalculator(arguments)
-                "knowledge_query" -> executeKnowledgeQuery(arguments)
-                "text_summarizer" -> executeSummarizer(arguments)
-                else -> """{"error": "Unknown tool: ${tool.name}"}"""
+            val output = when (toolImpl) {
+                is WebSearchTool -> toolImpl.execute(arguments["query"]?.jsonPrimitive?.content ?: "")
+                is CalculatorTool -> toolImpl.execute(arguments["expression"]?.jsonPrimitive?.content ?: "")
+                is TextSummarizerTool -> toolImpl.execute(
+                    arguments["text"]?.jsonPrimitive?.content ?: "",
+                    arguments["maxLength"]?.jsonPrimitive?.intOrNull ?: 200
+                )
+                is KnowledgeQueryTool -> toolImpl.execute(
+                    arguments["query"]?.jsonPrimitive?.content ?: "",
+                    arguments["limit"]?.jsonPrimitive?.intOrNull ?: 5
+                )
+                is DateTimeTool -> toolImpl.execute(arguments["format"]?.jsonPrimitive?.content ?: "readable")
+                is UrlFetchTool -> toolImpl.execute(
+                    arguments["url"]?.jsonPrimitive?.content ?: "",
+                    arguments["maxLength"]?.jsonPrimitive?.intOrNull ?: 2000
+                )
+                is ConverterTool -> toolImpl.execute(
+                    arguments["type"]?.jsonPrimitive?.content ?: "",
+                    arguments["value"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
+                    arguments["from"]?.jsonPrimitive?.content ?: "",
+                    arguments["to"]?.jsonPrimitive?.content ?: ""
+                )
+                else -> """{"error": "Unknown tool type"}"""
             }
             
             ToolResult(
@@ -168,108 +201,6 @@ class AgentEngine(
                 executionTimeMs = System.currentTimeMillis() - startTime
             )
         }
-    }
-    
-    private fun executeWebSearch(args: JsonObject): String {
-        val query = args["query"]?.jsonPrimitive?.content ?: return """{"error": "No query provided"}"""
-        // Web search implementation would go here
-        return """{"results": [], "query": "$query"}"""
-    }
-    
-    private fun executeCalculator(args: JsonObject): String {
-        val expression = args["expression"]?.jsonPrimitive?.content 
-            ?: return """{"error": "No expression provided"}"""
-        
-        return try {
-            val result = evaluateExpression(expression)
-            """{"result": $result, "expression": "$expression"}"""
-        } catch (e: Exception) {
-            """{"error": "${e.message}"}"""
-        }
-    }
-    
-    private fun executeKnowledgeQuery(args: JsonObject): String {
-        // This is a placeholder - actual implementation would query the knowledge base
-        val query = args["query"]?.jsonPrimitive?.content ?: return """{"error": "No query provided"}"""
-        return """{"results": [], "query": "$query"}"""
-    }
-    
-    private fun executeSummarizer(args: JsonObject): String {
-        val text = args["text"]?.jsonPrimitive?.content ?: return """{"error": "No text provided"}"""
-        // Simple summarization - in production would use AI
-        val summary = text.take(100) + if (text.length > 100) "..." else ""
-        return """{"summary": "$summary", "originalLength": ${text.length}}"""
-    }
-    
-    private fun evaluateExpression(expression: String): Double {
-        // Safe math evaluation
-        val sanitized = expression.replace("[^0-9+\\-*/.() ]".toRegex(), "")
-        return eval(sanitized)
-    }
-    
-    private fun eval(expr: String): Double {
-        return object {
-            var pos = -1
-            var ch = 0
-            
-            fun nextChar() {
-                ch = if (++pos < expr.length) expr[pos].code else -1
-            }
-            
-            fun eat(charToEat: Int): Boolean {
-                while (ch == ' '.code) nextChar()
-                if (ch == charToEat) {
-                    nextChar()
-                    return true
-                }
-                return false
-            }
-            
-            fun parse(): Double {
-                nextChar()
-                val x = parseExpression()
-                if (pos < expr.length) throw RuntimeException("Unexpected: ${ch.toChar()}")
-                return x
-            }
-            
-            fun parseExpression(): Double {
-                var x = parseTerm()
-                while (true) {
-                    when {
-                        eat('+'.code) -> x += parseTerm()
-                        eat('-'.code) -> x -= parseTerm()
-                        else -> return x
-                    }
-                }
-            }
-            
-            fun parseTerm(): Double {
-                var x = parseFactor()
-                while (true) {
-                    when {
-                        eat('*'.code) -> x *= parseFactor()
-                        eat('/'.code) -> x /= parseFactor()
-                        else -> return x
-                    }
-                }
-            }
-            
-            fun parseFactor(): Double {
-                if (eat('+'.code)) return parseFactor()
-                if (eat('-'.code)) return -parseFactor()
-                
-                var x = 0.0
-                val startPos = pos
-                if (eat('('.code)) {
-                    x = parseExpression()
-                    eat(')'.code)
-                } else if (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) {
-                    while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) nextChar()
-                    x = expr.substring(startPos, pos).toDouble()
-                }
-                return x
-            }
-        }.parse()
     }
     
     private suspend fun storeToolExecution(

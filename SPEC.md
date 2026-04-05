@@ -1,16 +1,72 @@
-# MindFlow - AI Chat & Agent Platform
+# MindFlow - AI Chat & Agent Platform Specification
+
+> Last Updated: 2026-04-05
 
 ## Project Overview
 
-**Project Name:** MindFlow (心灵流)
-**Type:** Android Native Application
-**Core Functionality:** An AI-powered chat application with customizable AI provider support, intelligent agent capabilities, and a hybrid memory system that combines local knowledge bases with real-time web search for context-aware conversations.
+**MindFlow** is a comprehensive AI chat and agent platform for Android that supports multiple AI providers, local knowledge bases, and intelligent memory management.
 
-## Architecture Overview
+## Features
+
+### 1. AI Chat (✅ Implemented)
+- [x] Multi-provider support (OpenAI Compatible, Anthropic, Google AI, Azure, Custom)
+- [x] Streaming responses with real-time display
+- [x] Conversation history with search
+- [x] Markdown rendering for code blocks and formatted text
+- [x] Message regeneration capability
+- [x] Token usage tracking and latency display
+
+### 2. AI Agent System (✅ Implemented)
+- [x] Custom agent creation with system prompts
+- [x] Built-in tools:
+  - [x] Web Search (DuckDuckGo API)
+  - [x] Calculator (Math expression evaluator)
+  - [x] Text Summarizer
+  - [x] Date/Time
+  - [x] Unit Converter (length, weight, temperature)
+  - [x] Knowledge Base Query
+  - [x] URL Content Fetcher
+- [x] Memory strategies: NO_MEMORY, SHORT_TERM, FULL
+- [x] ReAct execution pattern (Reasoning + Action)
+- [x] Max iteration control
+- [x] Tool execution tracking
+
+### 3. Memory System (✅ Implemented)
+- [x] Working memory (current conversation context)
+- [x] Short-term memory (conversation history)
+- [x] Long-term memory (importance-based storage)
+- [x] Automatic summarization of old messages
+- [x] Memory consolidation
+- [x] Memory pruning (old, low-importance entries)
+- [x] Key fact extraction from conversations
+- [x] Memory statistics
+
+### 4. Knowledge Base (🔄 In Progress)
+- [x] Document storage (basic)
+- [x] Document search (text-based)
+- [x] Source types: FILE, WEB_URL, NOTE, IMPORT
+- [x] Web content fetching
+- [ ] Document chunking for large files
+- [ ] Vector embedding storage
+- [ ] RAG (Retrieval Augmented Generation) pipeline
+
+### 5. Provider Management (✅ Implemented)
+- [x] Multiple provider configuration
+- [x] Provider types:
+  - [x] OpenAI Compatible (with custom endpoint)
+  - [x] Anthropic (Claude)
+  - [x] Google AI (Gemini)
+  - [x] Azure OpenAI
+  - [x] Custom API
+- [x] Provider validation
+- [x] Model selection per provider
+- [x] Temperature and max tokens configuration
+
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        UI Layer (MiKux)                      │
+│                        UI Layer                              │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  Chat    │  │  Agent   │  │ Knowledge│  │ Settings │   │
 │  │  Screen  │  │  Space   │  │  Base    │  │          │   │
@@ -28,386 +84,214 @@
 ├─────────────────────────────────────────────────────────────┤
 │                       Data Layer                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Room    │  │Preferences│  │ Vector   │  │ File    │     │
-│  │  DB      │  │  Store   │  │  Store   │  │  System │     │
+│  │  Room    │  │Preferences│  │ Vector   │  │  API    │     │
+│  │  DB      │  │  Store   │  │  Store   │  │  Client │     │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Technology Stack
+## Tech Stack
 
-### Framework & Language
-- **Language:** Kotlin 1.9.x
-- **Min SDK:** 26 (Android 8.0)
-- **Target SDK:** 34 (Android 14)
-- **UI Framework:** MiKux (Compose-based)
-
-### Key Libraries
-| Category | Library | Version |
-|----------|---------|---------|
-| DI | Koin | 3.5.x |
-| Networking | Retrofit + OkHttp | 2.9.x / 4.12.x |
-| Database | Room | 2.6.x |
-| Async | Kotlin Coroutines + Flow | 1.7.x |
-| Serialization | Kotlinx Serialization | 1.6.x |
-| Vector Store | ChromaDB / Local LMDB | - |
-| Embeddings | TensorFlow Lite / ONNX Runtime | - |
-| Navigation | Compose Navigation | 2.7.x |
-| Image Loading | Coil | 2.5.x |
-| Markdown | Markwon | 4.6.x |
-
-## Feature Specification
-
-### 1. AI Chat Module
-
-#### 1.1 Chat Interface
-- Real-time streaming responses
-- Markdown code rendering with syntax highlighting
-- Image attachment support
-- Message copy/retry/edit/delete
-- Conversation search and history
-- Export conversations (JSON/Markdown)
-
-#### 1.2 AI Provider Support
-Implement unified provider interface supporting:
-
-| Provider | API Format | Auth Method |
-|----------|------------|-------------|
-| OpenAI Compatible | OpenAI Chat Completions | API Key |
-| Anthropic | Anthropic Messages | API Key |
-| Google AI (Gemini) | Gemini REST | API Key |
-| Azure OpenAI | Azure AD / Key | API Key + Endpoint |
-| Custom Endpoint | OpenAI Compatible | API Key + Base URL |
-
-#### 1.3 Provider Configuration
-```kotlin
-data class AIProviderConfig(
-    val id: String,
-    val name: String,
-    val type: ProviderType,
-    val baseUrl: String,
-    val apiKey: String,
-    val modelId: String,
-    val maxTokens: Int = 4096,
-    val temperature: Float = 0.7f,
-    val supportsVision: Boolean = false,
-    val supportsStreaming: Boolean = true
-)
-```
-
-### 2. Memory System
-
-#### 2.1 Memory Architecture
-```
-┌─────────────────────────────────────────┐
-│           Working Memory                │
-│  (Current conversation context window)  │
-├─────────────────────────────────────────┤
-│          Short-Term Memory              │
-│  (Recent conversations, 7 days)          │
-├─────────────────────────────────────────┤
-│          Long-Term Memory               │
-│  (Vector embeddings, semantic search)   │
-└─────────────────────────────────────────┘
-```
-
-#### 2.2 Memory Types
-
-**Conversation Memory:**
-- Stores chat messages with metadata
-- Automatic summarization for long threads
-- Key information extraction
-
-**Semantic Memory:**
-- Vector embeddings of important facts
-- Concept relationships graph
-- RAG (Retrieval Augmented Generation) ready
-
-**User Preferences Memory:**
-- Cached user settings and preferences
-- AI behavior customization
-- Per-conversation settings
-
-#### 2.3 Memory Management
-```kotlin
-interface MemoryManager {
-    // Working memory operations
-    suspend fun updateWorkingContext(conversationId: String, messages: List<Message>)
-    suspend fun getWorkingContext(conversationId: String): Context
-    
-    // Short-term memory operations
-    suspend fun storeShortTerm(conversationId: String, messages: List<Message>)
-    suspend fun retrieveShortTerm(query: String, limit: Int): List<MemoryEntry>
-    
-    // Long-term memory operations  
-    suspend fun storeLongTerm(embedding: Embedding, content: String, metadata: Map<String, Any>)
-    suspend fun retrieveLongTerm(query: String, limit: Int, threshold: Float): List<MemoryEntry>
-    
-    // Memory consolidation
-    suspend fun consolidateMemories()
-    suspend fun pruneOldMemories()
-}
-```
-
-### 3. Agent Engine
-
-#### 3.1 Agent Framework
-Implements a ReAct (Reasoning + Acting) pattern:
-
-```kotlin
-data class AgentSpec(
-    val id: String,
-    val name: String,
-    val description: String,
-    val systemPrompt: String,
-    val tools: List<Tool>,
-    val memoryStrategy: MemoryStrategy,
-    val maxIterations: Int = 10
-)
-
-enum class MemoryStrategy {
-    NO_MEMORY,        // Stateless
-    SHORT_TERM,       // Current session only
-    FULL              // Full memory integration
-}
-```
-
-#### 3.2 Built-in Tools
-| Tool | Capability |
-|------|------------|
-| WebSearch | Search the web for information |
-| KnowledgeQuery | Query local knowledge base |
-| Calculator | Mathematical computations |
-| FileReader | Read local files |
-| CommandExecutor | Execute shell commands |
-| HTTPRequest | Make HTTP requests |
-| ImageAnalyzer | Analyze images |
-| TextSummarizer | Summarize long text |
-
-#### 3.3 Tool Interface
-```kotlin
-interface Tool {
-    val name: String
-    val description: String
-    val inputSchema: JsonObject
-    
-    suspend fun execute(input: JSONObject): ToolResult
-    suspend fun validate(input: JSONObject): ValidationResult
-}
-```
-
-### 4. Knowledge Base
-
-#### 4.1 Knowledge Sources
-- **Local Documents:** PDF, TXT, Markdown, DOC files
-- **Web Content:** URL scraping and indexing
-- **Notes:** User-created notes
-- **Custom Data:** Structured data import
-
-#### 4.2 Knowledge Pipeline
-```
-Document → Chunking → Embedding → Vector Store → Retrieval → Context
-```
-
-#### 4.3 Knowledge Configuration
-```kotlin
-data class KnowledgeConfig(
-    val enabled: Boolean = true,
-    val chunkSize: Int = 512,
-    val chunkOverlap: Int = 64,
-    val embeddingModel: String = "local-embeddings",
-    val maxResults: Int = 5,
-    val similarityThreshold: Float = 0.7f
-)
-```
-
-### 5. Settings & Configuration
-
-#### 5.1 AI Settings
-- Provider selection and configuration
-- Model parameters (temperature, max tokens, top-p)
-- System prompt customization
-- Response format preferences
-
-#### 5.2 Memory Settings
-- Memory retention period
-- Auto-summarization threshold
-- Memory consolidation schedule
-- Privacy controls
-
-#### 5.3 App Settings
-- Theme (Light/Dark/System)
-- Notification preferences
-- Data export/import
-- Cache management
-
-## UI/UX Design
-
-### Screen Structure
-```
-MainActivity
-├── ChatScreen (default)
-│   ├── ConversationList
-│   └── ChatView
-├── AgentScreen
-│   ├── AgentList
-│   └── AgentWorkspace
-├── KnowledgeScreen
-│   ├── DocumentList
-│   ├── WebImport
-│   └── Search
-└── SettingsScreen
-    ├── AIProviders
-    ├── MemoryConfig
-    └── AppSettings
-```
-
-### Navigation
-- Bottom navigation bar with 4 tabs
-- Each tab maintains its own navigation stack
-- Deep linking support for conversations
-
-### Theme: MiKux Inspired
-- Clean, modern aesthetic
-- Rounded corners (16dp default)
-- Soft shadows and elevation
-- Smooth transitions
-- Dynamic color support (Material You)
-
-### Color Scheme
-```kotlin
-// Primary: Deep Blue (#1E88E5)
-// Secondary: Teal (#26A69A)
-// Surface: White/Dark Grey adaptive
-// Error: Red (#EF5350)
-// On colors follow Material 3 guidelines
-```
+| Category | Technology | Version |
+|----------|------------|---------|
+| Language | Kotlin | 1.9.22 |
+| UI | Jetpack Compose + Material3 | BOM 2024.01.00 |
+| Theme | MiKux-inspired (custom) | - |
+| DI | Koin | 3.5.3 |
+| Database | Room | 2.6.1 |
+| Networking | Retrofit + OkHttp | 2.9.0 / 4.12.0 |
+| Serialization | Kotlinx Serialization | 1.6.2 |
+| Async | Coroutines + Flow | 1.7.3 |
+| Markdown | Markwon | 4.6.2 |
+| Image Loading | Coil | 2.5.0 |
 
 ## Data Models
 
-### Conversation
+### AIProvider
 ```kotlin
-@Entity
-data class Conversation(
-    @PrimaryKey val id: String,
-    val title: String?,
-    val createdAt: Long,
-    val updatedAt: Long,
-    val providerId: String,
-    val modelId: String,
-    val systemPrompt: String?,
-    val settings: ConversationSettings?
-)
-
-data class ConversationSettings(
-    val temperature: Float = 0.7f,
-    val maxTokens: Int = 4096,
-    val topP: Float? = null,
-    val stopSequences: List<String> = emptyList()
-)
+- id: String
+- name: String
+- type: ProviderType (OPENAI_COMPATIBLE, ANTHROPIC, GOOGLE_AI, AZURE_OPENAI, CUSTOM)
+- baseUrl: String
+- apiKey: String
+- modelId: String
+- maxTokens: Int (default: 4096)
+- temperature: Float (default: 0.7)
+- supportsVision: Boolean
+- supportsStreaming: Boolean
+- isEnabled: Boolean
 ```
 
 ### Message
 ```kotlin
-@Entity
-data class Message(
-    @PrimaryKey val id: String,
-    @ForeignKey val conversationId: String,
-    val role: Role, // USER, ASSISTANT, SYSTEM
-    val content: String,
-    val rawContent: String?, // Original for streaming
-    val modelId: String?,
-    val tokens: Int?,
-    val latencyMs: Long?,
-    val createdAt: Long,
-    val metadata: MessageMetadata?
-)
-
-data class MessageMetadata(
-    val attachments: List<Attachment> = emptyList(),
-    val toolCalls: List<ToolCall> = emptyList(),
-    val error: String? = null
-)
+- id: String
+- conversationId: String
+- role: MessageRole (SYSTEM, USER, ASSISTANT, TOOL)
+- content: String
+- rawContent: String?
+- modelId: String?
+- tokens: Int?
+- latencyMs: Long?
+- createdAt: Long
+- attachments: List<Attachment>
+- toolCalls: List<ToolCall>
+- error: String?
 ```
 
-### Memory Entry
+### Agent
 ```kotlin
-@Entity
-data class MemoryEntry(
-    @PrimaryKey val id: String,
-    val type: MemoryType, // CONVERSATION, FACT, PREFERENCE
-    val content: String,
-    val embedding: FloatArray?, // For vector search
-    val conversationId: String?,
-    val createdAt: Long,
-    val accessedAt: Long,
-    val importance: Float, // 0-1, auto-calculated
-    val accessCount: Int = 0
-)
+- id: String
+- name: String
+- description: String
+- systemPrompt: String
+- tools: List<String> (tool IDs)
+- memoryStrategy: MemoryStrategy (NO_MEMORY, SHORT_TERM, FULL)
+- maxIterations: Int (default: 10)
+- createdAt: Long
 ```
+
+### MemoryEntry
+```kotlin
+- id: String
+- type: MemoryType (CONVERSATION, FACT, PREFERENCE, KNOWLEDGE)
+- content: String
+- conversationId: String?
+- createdAt: Long
+- accessedAt: Long
+- importance: Float (0.0 - 1.0)
+- accessCount: Int
+- metadata: Map<String, String>
+```
+
+## API Integration
+
+### OpenAI Compatible API
+- Endpoint: `POST /chat/completions`
+- Supports streaming via SSE
+- Tool calling via `tools` and `tool_choice` parameters
+
+### Anthropic API
+- Endpoint: `POST /v1/messages`
+- Streaming via `stream: true`
+- Uses Claude-specific message format
+
+### Google AI (Gemini)
+- Endpoint: `POST /v1beta/models/{model}:generateContent`
+- Streaming via `alt=sse` query parameter
+
+## Memory Strategy Details
+
+### NO_MEMORY
+- No context carried between turns
+- Each conversation is independent
+
+### SHORT_TERM
+- Keeps conversation history in working memory
+- Messages from the last 20 turns included
+- Older messages summarized and stored
+
+### FULL
+- Full RAG pipeline with memory + knowledge base
+- Vector similarity search for relevant context
+- Combines conversation history with external knowledge
+
+## Tool System
+
+### Built-in Tools
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| web_search | Search the web via DuckDuckGo | query: string |
+| calculator | Evaluate math expressions | expression: string |
+| text_summarizer | Summarize long text | text: string, maxLength?: int |
+| knowledge_query | Query local knowledge base | query: string, limit?: int |
+| datetime | Get current date/time | format?: "iso" \| "readable" \| "unix" |
+| url_fetch | Fetch content from URL | url: string, maxLength?: int |
+| converter | Unit conversion | type: string, value: number, from: string, to: string |
+
+### Tool Execution Flow
+1. Agent receives user input
+2. AI decides to call a tool
+3. Tool name and arguments extracted from response
+4. Tool executed with arguments
+5. Tool result added to context
+6. Agent continues reasoning with tool result
+
+## UI Screens
+
+### Chat Screen
+- Message bubbles (user right-aligned, assistant left-aligned)
+- Streaming response indicator
+- Error banner for failures
+- Input bar with send button
+- Regenerate response button
+
+### Agent Workspace Screen
+- Agent selection/creation
+- Tool configuration
+- Memory strategy selection
+- Execution with step-by-step display
+- Tool call visualization
+
+### Knowledge Base Screen
+- Document list with source badges
+- Add document FAB
+- Search functionality
+- Document detail view
+
+### Settings Screen
+- Provider management
+- Theme toggle (light/dark)
+- Memory statistics
+- About section
 
 ## GitHub Actions CI/CD
 
-### Workflow Triggers
-- Push to `main` branch: Build debug APK
-- PR: Build and run tests
-- Release tag: Build release APK
+### Workflows
+1. **build-debug**: Builds debug APK on every push to main
+2. **test**: Runs unit tests on pull requests
+3. **build-release**: Builds release APK on version tags
 
-### Build Configuration
-- Gradle 8.x with Kotlin DSL
-- Java 17
-- Debug APK: Unaligned, no ProGuard
-- Release APK: ProGuard minification, signing config
+### Secrets Required for Release
+- `KEYSTORE`: Release keystore file
+- `KEY_ALIAS`: Keystore alias
+- `KEY_PASSWORD`: Key password
+- `STORE_PASSWORD`: Store password
 
-### Build Artifacts
-- Debug APK: `app/build/outputs/apk/debug/`
-- Release APK: `app/build/outputs/apk/release/`
+## Future Enhancements
 
-## Security Considerations
+- [ ] Vision support for image attachments
+- [ ] Voice input/output
+- [ ] Plugin system for custom tools
+- [ ] Multi-agent collaboration
+- [ ] Cloud sync for memory
+- [ ] Advanced RAG with embeddings
+- [ ] i18n support
 
-1. **API Key Storage:** Encrypted SharedPreferences or KeyChain
-2. **Data at Rest:** Room database encryption (SQLCipher)
-3. **Network:** Certificate pinning for API endpoints
-4. **User Data:** Local-only by default, explicit export
-5. **Memory Privacy:** User control over what gets remembered
+## Development Notes
 
-## Non-Goals (Explicit Scope Boundaries)
+### Building Locally
+```bash
+./gradlew assembleDebug  # Debug build
+./gradlew assembleRelease # Release build (requires signing config)
+```
 
-- Not a general-purpose Android automation tool
-- No direct system-level integrations (contacts, SMS, etc.)
-- No social features or sharing to external platforms
-- Not a replacement for specialized research tools
+### Running Tests
+```bash
+./gradlew test           # Unit tests
+./gradlew connectedCheck # Instrumented tests
+```
 
-## Implementation Phases
+### Adding a New Provider
+1. Implement `AIProviderApi` interface in `data/remote/api/`
+2. Add provider type to `ProviderType` enum
+3. Add handling in `AIService.sendMessage()`
+4. Add UI in provider settings screen
 
-### Phase 1: Foundation (MVP)
-- [ ] Project setup with MiKux
-- [ ] Basic chat UI with streaming
-- [ ] Single AI provider (OpenAI compatible)
-- [ ] Local message storage
-- [ ] GitHub workflow setup
+## License
 
-### Phase 2: Multi-Provider
-- [ ] Provider abstraction layer
-- [ ] Anthropic, Google, Azure support
-- [ ] Provider testing/validation
+MIT License - See LICENSE file
 
-### Phase 3: Memory System
-- [ ] Short-term memory implementation
-- [ ] Vector embedding integration
-- [ ] Memory retrieval in chat context
+---
 
-### Phase 4: Agent Capabilities
-- [ ] Tool system framework
-- [ ] Built-in tools (search, calculator, etc.)
-- [ ] Agent workspace UI
-
-### Phase 5: Knowledge Base
-- [ ] Document indexing
-- [ ] Web content import
-- [ ] RAG pipeline
-
-### Phase 6: Polish
-- [ ] Settings and customization
-- [ ] Performance optimization
-- [ ] Testing and bug fixes
+_MindFlow - Think Deeper, Remember Longer_

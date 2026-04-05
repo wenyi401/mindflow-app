@@ -9,11 +9,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/yourusername/mindflow-app/actions">
-    <img src="https://github.com/yourusername/mindflow-app/actions/workflows/android.yml/badge.svg" alt="CI Status"/>
+  <a href="https://github.com/nice的心情/mindflow-app/actions">
+    <img src="https://github.com/nice的心情/mindflow-app/workflows/Android%20CI/CD/badge.svg" alt="CI Status"/>
   </a>
-  <a href="https://github.com/yourusername/mindflow-app/releases">
-    <img src="https://img.shields.io/github/v/release/yourusername/mindflow-app?color=blue" alt="Release"/>
+  <a href="https://github.com/nice的心情/mindflow-app/releases">
+    <img src="https://img.shields.io/github/v/release/nice的心情/mindflow-app?color=blue" alt="Release"/>
   </a>
   <a href="https://kotlinlang.org/">
     <img src="https://img.shields.io/badge/Kotlin-1.9.22-blue.svg" alt="Kotlin"/>
@@ -21,6 +21,8 @@
   <a href="https://developer.android.com/studio/releases/gradle-plugin">
     <img src="https://img.shields.io/badge/AGP-8.2.2-blue.svg" alt="AGP"/>
   </a>
+  <img src="https://img.shields.io/badge/Android-Min%20SDK%2026-yellow.svg" alt="Min SDK"/>
+  <img src="https://img.shields.io/badge/Android-Target%20SDK%2034-blue.svg" alt="Target SDK"/>
 </p>
 
 ---
@@ -31,15 +33,17 @@
 - **多AI服务商支持**: OpenAI、Anthropic、Google AI、Azure OpenAI、自定义端点
 - **流式响应**: 实时流式输出，流畅的用户体验
 - **对话管理**: 多会话支持，搜索历史，自动摘要
+- **Markdown渲染**: 代码高亮、表格、格式化文本
 
 ### 🧠 智能记忆系统
 - **工作记忆**: 当前对话上下文窗口
 - **短期记忆**: 最近7天的对话记忆
-- **长期记忆**: 向量存储，语义搜索，RAG准备
+- **长期记忆**: 基于重要性评分，语义搜索准备
 - **自动重要性评分**: 智能区分重要信息
+- **记忆整合**: 自动合并相似记忆，清理低价值记忆
 
 ### 🔧 AI Agent能力
-- **内置工具**: 网络搜索、计算器、知识查询、文本摘要
+- **内置工具**: 网络搜索、计算器、知识查询、文本摘要、单位转换
 - **可扩展工具系统**: 轻松添加自定义工具
 - **多种记忆策略**: 无记忆/短期/完整记忆
 - **ReAct执行模式**: 推理+行动的问题解决模式
@@ -47,7 +51,7 @@
 ### 📚 知识库
 - **本地文档**: 支持PDF、TXT、Markdown、DOC
 - **网页内容**: URL抓取和索引
-- **RAG管道**: 检索增强生成
+- **RAG管道**: 检索增强生成（开发中）
 
 ### 🎨 MiKux风格UI
 - Material Design 3设计语言
@@ -61,7 +65,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        UI Layer (MiKux)                      │
+│                        UI Layer (Compose + MiKux)            │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  Chat    │  │  Agent   │  │ Knowledge│  │ Settings │   │
 │  │  Screen  │  │  Space   │  │  Base    │  │          │   │
@@ -70,17 +74,17 @@
 │                      Domain Layer                            │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
 │  │ AI Provider  │  │   Memory    │  │    Agent    │       │
-│  │   Framework  │  │   System    │  │    Engine   │       │
+│  │   Framework  │  │   Manager   │  │    Engine   │       │
 │  └──────────────┘  └──────────────┘  └──────────────┘       │
 │  ┌──────────────┐  ┌──────────────┐                         │
-│  │  Knowledge   │  │   Tool      │                         │
-│  │   Retrieval  │  │   System    │                         │
+│  │  Knowledge   │  │   Tool     │                         │
+│  │   Retrieval  │  │ Implementations│                      │
 │  └──────────────┘  └──────────────┘                         │
 ├─────────────────────────────────────────────────────────────┤
 │                       Data Layer                             │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Room    │  │Preferences│  │ Vector   │  │  API    │     │
-│  │  DB      │  │  Store   │  │  Store   │  │  Client │     │
+│  │  Room    │  │Preferences│  │  Cache   │  │  API    │     │
+│  │  DB      │  │  Store   │  │          │  │  Client │     │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -92,12 +96,13 @@
 | Category | Technology |
 |----------|------------|
 | Language | Kotlin 1.9.22 |
-| UI | Jetpack Compose + MiKux |
+| UI | Jetpack Compose + Material3 |
 | DI | Koin 3.5.x |
 | Database | Room 2.6.x |
 | Networking | Retrofit + OkHttp |
 | Async | Coroutines + Flow |
 | Serialization | Kotlinx Serialization |
+| Markdown | Markwon |
 
 ---
 
@@ -112,7 +117,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mindflow-app.git
+git clone https://github.com/nice的心情/mindflow-app.git
 cd mindflow-app
 
 # Build debug APK
@@ -121,7 +126,7 @@ cd mindflow-app
 # Run tests
 ./gradlew test
 
-# Build release APK
+# Build release APK (requires signing config)
 ./gradlew assembleRelease
 ```
 
@@ -134,10 +139,45 @@ GitHub Actions workflow handles:
 
 ---
 
+## 🔧 Configuration
+
+### Adding an AI Provider
+
+1. Open the app and go to **Settings**
+2. Tap **Provider Management**
+3. Tap **Add Provider**
+4. Select provider type:
+   - **OpenAI Compatible**: For OpenAI, local models, etc.
+   - **Anthropic**: For Claude models
+   - **Google AI**: For Gemini models
+   - **Azure OpenAI**: For Microsoft Azure
+   - **Custom**: For any OpenAI-compatible API
+5. Enter the required information:
+   - Name: Display name
+   - Base URL: API endpoint
+   - API Key: Your API key
+   - Model ID: Model to use (e.g., gpt-4, claude-3)
+6. Tap **Save** and **Validate**
+
+### Creating an Agent
+
+1. Go to the **Agent** tab
+2. Tap **+** to create a new agent
+3. Configure:
+   - **Name**: Agent name
+   - **Description**: What the agent does
+   - **System Prompt**: Agent's personality and instructions
+   - **Tools**: Select tools to enable
+   - **Memory Strategy**: Choose how much context to maintain
+   - **Max Iterations**: Limit tool call loops
+4. Tap **Save**
+
+---
+
 ## 📖 Documentation
 
 - [SPEC.md](./SPEC.md) - 详细的功能规格说明
-- [Wiki](https://github.com/yourusername/mindflow-app/wiki) - 项目文档
+- [Wiki](https://github.com/nice的心情/mindflow-app/wiki) - 项目文档
 
 ---
 
@@ -162,12 +202,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [OpenAI](https://openai.com/) - GPT models
-- [Anthropic](https://anthropic.com/) - Claude模型
-- [Google AI](https://ai.google.dev/) - Gemini模型
+- [Anthropic](https://anthropic.com/) - Claude models
+- [Google AI](https://ai.google.dev/) - Gemini models
 - [MiKux](https://github.com/nice的心情/MiKux) - UI设计灵感
+- [DuckDuckGo](https://duckduckgo.com/) - 免费搜索API
 
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/yourusername">Your Name</a>
+  Made with ❤️ by <a href="https://github.com/nice的心情">nice的心情</a>
 </p>
