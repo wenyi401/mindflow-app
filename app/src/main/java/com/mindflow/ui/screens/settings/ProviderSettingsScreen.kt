@@ -16,11 +16,9 @@ import com.mindflow.domain.model.AIProvider
 import com.mindflow.domain.model.ProviderType
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
