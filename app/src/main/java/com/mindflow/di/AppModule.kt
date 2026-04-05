@@ -9,6 +9,7 @@ import com.mindflow.ui.screens.agent.AgentListViewModel
 import com.mindflow.ui.screens.agent.AgentWorkspaceViewModel
 import com.mindflow.ui.screens.chat.ChatListViewModel
 import com.mindflow.ui.screens.chat.ChatViewModel
+import com.mindflow.ui.screens.knowledge.KnowledgeViewModel
 import com.mindflow.ui.screens.settings.ProviderSettingsViewModel
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
@@ -91,4 +92,7 @@ val viewModelModule = module {
     
     // Provider Settings ViewModel
     factory { ProviderSettingsViewModel(get()) }
+    
+    // Knowledge ViewModel
+    factory { KnowledgeViewModel(get()) }
 }
