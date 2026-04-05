@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MindFlow</string>
+    
+    <!-- Chat -->
+    <string name="new_chat">New Chat</string>
+    <string name="type_message">Type a message…</string>
+    <string name="send">Send</string>
+    <string name="delete_conversation">Delete conversation?</string>
+    
+    <!-- Agents -->
+    <string name="create_agent">Create Agent</string>
+    <string name="agent_name">Name</string>
+    <string name="agent_description">Description</string>
+    <string name="system_prompt">System Prompt</string>
+    <string name="memory_strategy">Memory Strategy</string>
+    
+    <!-- Knowledge -->
+    <string name="add_document">Add Document</string>
+    <string name="search_knowledge">Search knowledge base…</string>
+    <string name="title">Title</string>
+    <string name="source">Source</string>
+    <string name="content">Content</string>
+    
+    <!-- Settings -->
+    <string name="ai_providers">AI Providers</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="clear_memory">Clear Memory</string>
+    <string name="export_data">Export Data</string>
+    
+    <!-- Provider -->
+    <string name="add_provider">Add Provider</string>
+    <string name="provider_type">Provider Type</string>
+    <string name="base_url">Base URL</string>
+    <string name="api_key">API Key</string>
+    <string name="model_id">Model ID</string>
+    <string name="max_tokens">Max Tokens</string>
+</resources>
