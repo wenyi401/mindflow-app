@@ -34,15 +34,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
       
-      - name: Initialize Gradle Wrapper
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+      
+      - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Gradle wrapper JAR not found, downloading..."
+            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            curl -sL https://services.gradle.org/distributions/gradle-8.5-bin.zip -o /tmp/gradle.zip
-            unzip -q /tmp/gradle.zip -d /tmp
-            cp /tmp/gradle-8.5/lib/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar 2>/dev/null || \
-            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
+            # Download gradle wrapper jar directly from maven central
+            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
         shell: bash
       
@@ -87,11 +89,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
       
-      - name: Initialize Gradle Wrapper
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+      
+      - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
+            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
         shell: bash
       
@@ -124,11 +131,16 @@ jobs:
       - name: Get the version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       
-      - name: Initialize Gradle Wrapper
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+      
+      - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
+            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
         shell: bash
       
