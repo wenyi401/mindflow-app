@@ -80,8 +80,8 @@ Thumbs.db
 *.bak
 *~
 
-# Gradle wrapper
-gradle/wrapper/gradle-wrapper.jar
+# Gradle wrapper (committed to repo for CI)
+# gradle/wrapper/gradle-wrapper.jar
 
 # Release signing
 release/

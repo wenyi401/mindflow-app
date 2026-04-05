@@ -41,11 +41,15 @@ jobs:
       - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            # Download gradle wrapper jar directly from maven central
-            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
+            # Download gradle wrapper jar from Gradle services
+            curl -sL "https://services.gradle.org/distributions/gradle-8.5-bin.zip" -o /tmp/gradle.zip
+            unzip -q /tmp/gradle.zip -d /tmp
+            cp /tmp/gradle-8.5/lib/gradle-wrapper-*.jar gradle/wrapper/gradle-wrapper.jar 2>/dev/null || \
+            find /tmp/gradle-8.5 -name "gradle-wrapper*.jar" -exec cp {} gradle/wrapper/gradle-wrapper.jar \;
           fi
+          # Verify the jar file is valid
+          file gradle/wrapper/gradle-wrapper.jar
         shell: bash
       
       - name: Grant execute permission for gradlew
@@ -96,9 +100,8 @@ jobs:
       - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
+            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
         shell: bash
       
@@ -138,9 +141,8 @@ jobs:
       - name: Setup Gradle
         run: |
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Gradle wrapper JAR not found, generating..."
             mkdir -p gradle/wrapper
-            curl -sL "https://repo.maven.apache.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar" -o gradle/wrapper/gradle-wrapper.jar
+            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
         shell: bash
       
