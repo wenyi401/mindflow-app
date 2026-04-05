@@ -431,7 +431,7 @@ class AIService(
             ).execute()
             
             if (!response.isSuccessful) {
-                val error = "API Error: ${response.code()} - ${response.message}"
+                val error = "API Error: ${response.code} - ${response.message()}"
                 onError(error)
                 return Result.failure(Exception(error))
             }
