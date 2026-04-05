@@ -268,6 +268,41 @@
 - [ ] Advanced RAG with embeddings
 - [ ] i18n support
 
+## Development Guidelines
+
+### Adding a New AI Provider
+1. Add provider type to `ProviderType` enum in `Models.kt`
+2. Implement API interface in `AIProviderApi.kt` (e.g., `NewProviderApi`)
+3. Add provider-specific request/response DTOs
+4. Update `AIService.sendMessage()` to handle the new provider type
+5. Add UI in provider settings screen
+
+### Adding a New Tool
+1. Create tool class implementing `Tool` interface in `ToolImplementations.kt`
+2. Add tool to `ToolFactory.createTool()` method
+3. Register tool in `AgentViewModel` or database
+4. Update agent creation UI to show the new tool
+
+### Memory System Configuration
+| Strategy | Context Window | Storage | Use Case |
+|----------|---------------|---------|----------|
+| NO_MEMORY | None | None | Stateless tasks |
+| SHORT_TERM | Last 20 messages | Room DB | Simple conversations |
+| FULL | All relevant + RAG | Room DB + Vector | Complex agent tasks |
+
+### Database Schema
+- **conversations**: Chat sessions
+- **messages**: Individual messages
+- **providers**: AI provider configurations
+- **memory_entries**: Long-term memory storage
+- **knowledge_documents**: Knowledge base documents
+- **agents**: Custom agent definitions
+
+### API Rate Limits
+- Default timeout: 60s connect, 120s read
+- Streaming responses supported for all providers
+- Retry logic should be implemented at the network layer
+
 ## Development Notes
 
 ### Building Locally

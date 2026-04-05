@@ -209,6 +209,126 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 🗂️ Project Structure
+
+```
+mindflow-app/
+├── app/
+│   └── src/main/
+│       ├── java/com/mindflow/
+│       │   ├── agent/           # AI Agent engine and tools
+│       │   │   ├── tools/      # Built-in tool implementations
+│       │   │   └── memory/      # Memory management
+│       │   ├── data/            # Data layer
+│       │   │   ├── local/       # Room database
+│       │   │   └── remote/      # API clients
+│       │   ├── domain/          # Domain layer
+│       │   │   ├── model/      # Data models
+│       │   │   ├── repository/ # Repository interfaces
+│       │   │   └── usecase/     # Use cases
+│       │   ├── ui/             # UI layer
+│       │   │   ├── screens/    # Screen composables
+│       │   │   ├── navigation/ # Navigation
+│       │   │   └── theme/      # Theme configuration
+│       │   └── di/              # Dependency injection
+│       └── res/                 # Resources
+├── .github/workflows/           # GitHub Actions
+├── build.gradle.kts            # Root build config
+└── settings.gradle.kts         # Project settings
+```
+
+## 🔌 Supported AI Providers
+
+| Provider | Models | Streaming | Vision | Tools |
+|----------|--------|-----------|--------|-------|
+| OpenAI Compatible | GPT-4, GPT-3.5, etc. | ✅ | ✅ | ✅ |
+| Anthropic | Claude 3, Claude 2 | ✅ | ✅ | ✅ |
+| Google AI | Gemini Pro, Gemini Ultra | ✅ | ✅ | ❌ |
+| Azure OpenAI | GPT-4, GPT-3.5 | ✅ | ✅ | ✅ |
+| Custom (Ollama, LM Studio, etc.) | Any OpenAI-compatible | ✅ | ✅ | ✅ |
+
+## 📝 Memory Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Memory Hierarchy                    │
+├─────────────────────────────────────────────────────┤
+│  Working Memory (In-Context)                        │
+│  └── Last 20 messages in current conversation       │
+├─────────────────────────────────────────────────────┤
+│  Short-Term Memory (Session)                        │
+│  └── Conversation history with auto-summarization  │
+├─────────────────────────────────────────────────────┤
+│  Long-Term Memory (Persistent)                      │
+│  └── Importance-based storage, semantic search      │
+└─────────────────────────────────────────────────────┘
+```
+
+## 🤖 Agent Tool System
+
+The agent can use these built-in tools:
+- 🌐 **Web Search** - DuckDuckGo instant answers
+- 🧮 **Calculator** - Math expression evaluation
+- 📝 **Text Summarizer** - Summarize long text
+- 📚 **Knowledge Query** - Query local knowledge base
+- 📅 **DateTime** - Get current date/time
+- 🔗 **URL Fetcher** - Fetch web page content
+- 🔄 **Unit Converter** - Length, weight, temperature
+
+## ⚙️ Configuration Examples
+
+### OpenAI Compatible (e.g., OpenAI, local models)
+```
+Base URL: https://api.openai.com/v1
+Model ID: gpt-4
+API Key: sk-...
+```
+
+### Anthropic
+```
+Base URL: https://api.anthropic.com
+Model ID: claude-3-opus-20240229
+API Key: sk-ant-...
+```
+
+### Google AI (Gemini)
+```
+Base URL: https://generativelanguage.googleapis.com
+Model ID: gemini-pro
+API Key: AIza...
+```
+
+### Custom (Ollama, LM Studio, etc.)
+```
+Base URL: http://localhost:11434/v1 (Ollama)
+Model ID: llama2, mistral, etc.
+API Key: ollama (or empty for local)
+```
+
+## 📦 Building
+
+### Debug Build
+```bash
+./gradlew assembleDebug
+```
+
+### Release Build
+```bash
+./gradlew assembleRelease
+```
+
+### CI/CD
+All builds are handled by GitHub Actions:
+- **Push to main**: Automatic debug APK build
+- **Pull Request**: Unit tests run
+- **Version tag (v*)**: Release APK build
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) file
+
+---
+
 <p align="center">
   Made with ❤️ by <a href="https://github.com/nice的心情">nice的心情</a>
 </p>
