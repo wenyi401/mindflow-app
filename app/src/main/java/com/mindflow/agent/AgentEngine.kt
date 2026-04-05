@@ -4,6 +4,7 @@ import android.content.Context
 import com.mindflow.agent.tools.*
 import com.mindflow.domain.model.*
 import com.mindflow.domain.repository.*
+import com.mindflow.domain.usecase.AIService
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.*
 import java.util.UUID

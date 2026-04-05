@@ -188,8 +188,8 @@ class MemoryRepositoryImpl(
     }
     
     override suspend fun pruneOldMemories(olderThanDays: Int, minImportance: Float): Result<Int> {
+        val cutoffTime = System.currentTimeMillis() - (olderThanDays * 24 * 60 * 60 * 1000L)
         return runCatching {
-            val cutoffTime = System.currentTimeMillis() - (olderThanDays * 24 * 60 * 60 * 1000L)
             memoryDao.pruneOldMemories(cutoffTime, minImportance)
         }
     }

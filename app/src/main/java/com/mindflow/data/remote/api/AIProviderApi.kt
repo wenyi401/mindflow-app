@@ -22,7 +22,7 @@ interface AIProviderApi {
         @Header("Authorization") authorization: String,
         @Header("Content-Type") contentType: String = "application/json",
         @Body request: ChatCompletionRequest
-    ): Response<java.io.ResponseBody>
+    ): Response<ResponseBody>
     
     @GET("models")
     suspend fun getModels(
@@ -55,7 +55,7 @@ interface AnthropicApi {
         @Header("anthropic-version") version: String = "2023-06-01",
         @Header("Content-Type") contentType: String = "application/json",
         @Body request: AnthropicMessageRequest
-    ): Response<java.io.ResponseBody>
+    ): Response<ResponseBody>
 }
 
 /**
@@ -75,7 +75,7 @@ interface GoogleAIApi {
         @Path("model") model: String,
         @Query("apiKey") apiKey: String,
         @Body request: GoogleGenerateRequest
-    ): Response<java.io.ResponseBody>
+    ): Response<ResponseBody>
 }
 
 /**
