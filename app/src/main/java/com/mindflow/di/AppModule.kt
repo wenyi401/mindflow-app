@@ -5,6 +5,11 @@ import com.mindflow.agent.memory.MemoryManager
 import com.mindflow.data.local.database.*
 import com.mindflow.domain.repository.*
 import com.mindflow.domain.usecase.AIService
+import com.mindflow.ui.screens.agent.AgentListViewModel
+import com.mindflow.ui.screens.agent.AgentWorkspaceViewModel
+import com.mindflow.ui.screens.chat.ChatListViewModel
+import com.mindflow.ui.screens.chat.ChatViewModel
+import com.mindflow.ui.screens.settings.ProviderSettingsViewModel
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -76,5 +81,14 @@ val appModule = module {
  * ViewModel module for Koin
  */
 val viewModelModule = module {
-    // ViewModels will be added here
+    // Chat ViewModels
+    factory { ChatListViewModel(get()) }
+    factory { ChatViewModel(get(), get(), get(), get()) }
+    
+    // Agent ViewModels
+    factory { AgentListViewModel(get()) }
+    factory { AgentWorkspaceViewModel(get(), get()) }
+    
+    // Provider Settings ViewModel
+    factory { ProviderSettingsViewModel(get()) }
 }

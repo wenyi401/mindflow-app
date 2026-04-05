@@ -50,7 +50,7 @@ sealed class BottomNavItem(
     val route: String,
     val title: String,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageIcon
+    val unselectedIcon: ImageVector
 ) {
     object Chat : BottomNavItem(
         route = Screen.ChatList.route,
@@ -195,9 +195,3 @@ fun MindFlowNavigation() {
         }
     }
 }
-
-/**
- * Extension for NavigationBar icon
- */
-private typealias Icons = androidx.compose.material.icons.Icons
-private typealias ImageIcon = androidx.compose.ui.graphics.vector.ImageVector
