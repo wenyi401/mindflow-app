@@ -95,11 +95,11 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
     
     // Networking
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.9.0")
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.11.0")
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
@@ -114,11 +114,12 @@ dependencies {
     implementation("io.noties.markwon:core:4.6.2")
     implementation("io.noties.markwon:ext-strikethrough:4.6.2")
     implementation("io.noties.markwon:ext-tables:4.6.2")
-    implementation("io.noties.markwon:syntax-highlight:4.6.2")
+    implementation("io.noties.markwon:syntax-highlight:4.6.2") {
+        exclude(group = "org.jetbrains", module = "annotations-java5")
+    }
     
-    // SQLite for vector storage
-    implementation("io.requery:requery:1.6.1")
-    implementation("io.requery:requery-sqlite:1.6.1")
+    // SQLite for vector storage (using Room's SQLite)
+    // Note: requery is deprecated, using Room instead
     
     // Testing
     testImplementation("junit:junit:4.13.2")

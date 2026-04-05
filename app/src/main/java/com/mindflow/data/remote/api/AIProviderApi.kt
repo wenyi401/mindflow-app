@@ -162,14 +162,14 @@ data class UsageDto(
 
 @kotlinx.serialization.Serializable
 data class ModelsResponse(
-    val object: String = "list",
+    val `object`: String = "list",
     val data: List<ModelInfoDto>
 )
 
 @kotlinx.serialization.Serializable
 data class ModelInfoDto(
     val id: String,
-    val object: String = "model",
+    val `object`: String = "model",
     val created: Long? = null,
     val owned_by: String? = null
 )
