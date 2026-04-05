@@ -15,6 +15,12 @@ import androidx.compose.ui.unit.dp
 import com.mindflow.domain.model.AIProvider
 import com.mindflow.domain.model.ProviderType
 import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 /**
@@ -378,11 +384,7 @@ private fun ProviderConfigDialog(
             }
         }
     )
-}
 
-/**
- * Provider Settings ViewModel
- */
 class ProviderSettingsViewModel(
     private val providerRepository: com.mindflow.domain.repository.ProviderRepository
 ) : androidx.lifecycle.ViewModel() {
@@ -391,24 +393,20 @@ class ProviderSettingsViewModel(
         .collectAsState(initial = emptyList())
     
     fun saveProvider(provider: AIProvider) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        androidx.lifecycle.viewModelScope.launch {
             providerRepository.saveProvider(provider)
         }
     }
     
     fun deleteProvider(id: String) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        androidx.lifecycle.viewModelScope.launch {
             providerRepository.deleteProvider(id)
         }
     }
     
     fun toggleProvider(provider: AIProvider) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        androidx.lifecycle.viewModelScope.launch {
             providerRepository.saveProvider(provider.copy(isEnabled = !provider.isEnabled))
         }
     }
-}
-
-private fun kotlinx.coroutines.CoroutineScope.launch(block: suspend () -> Unit): kotlinx.coroutines.Job {
-    return kotlinx.coroutines.launch { block() }
 }

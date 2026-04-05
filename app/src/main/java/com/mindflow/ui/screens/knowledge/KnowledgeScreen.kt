@@ -14,6 +14,11 @@ import androidx.compose.ui.unit.dp
 import com.mindflow.domain.model.KnowledgeDocument
 import com.mindflow.domain.model.SourceType
 import org.koin.androidx.compose.koinViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -300,12 +305,18 @@ private fun formatDate(timestamp: Long): String {
 /**
  * Knowledge ViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class KnowledgeViewModel(
     private val knowledgeRepository: com.mindflow.domain.repository.KnowledgeRepository
 ) : androidx.lifecycle.ViewModel() {
     
-    val documents = knowledgeRepository.getAllDocuments()
-        .collectAsState(initial = emptyList())
+    val documents: kotlinx.coroutines.flow.StateFlow<List<KnowledgeDocument>> = 
+        knowledgeRepository.getAllDocuments()
+            .stateIn(
+                scope = viewModelScope,
+                started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
     
     fun addDocument(
         title: String,
@@ -322,18 +333,14 @@ class KnowledgeViewModel(
             createdAt = System.currentTimeMillis()
         )
         
-        kotlinx.coroutines.GlobalScope.launch {
+        viewModelScope.launch {
             knowledgeRepository.addDocument(document)
         }
     }
     
     fun deleteDocument(id: String) {
-        kotlinx.coroutines.GlobalScope.launch {
+        viewModelScope.launch {
             knowledgeRepository.deleteDocument(id)
         }
     }
-}
-
-private fun kotlinx.coroutines.GlobalScope.launch(block: suspend () -> Unit) {
-    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch { block() }
 }

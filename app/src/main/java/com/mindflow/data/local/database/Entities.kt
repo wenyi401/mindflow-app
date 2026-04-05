@@ -220,7 +220,7 @@ interface MemoryDao {
     suspend fun deleteMemory(memory: MemoryEntity)
     
     @Query("DELETE FROM memory_entries WHERE createdAt < :timestamp AND importance < :threshold")
-    suspend fun pruneOldMemories(timestamp: Long, threshold: Float)
+    suspend fun pruneOldMemories(timestamp: Long, threshold: Float): Int
     
     @Query("UPDATE memory_entries SET accessedAt = :timestamp, accessCount = accessCount + 1 WHERE id = :id")
     suspend fun updateAccess(id: String, timestamp: Long)
