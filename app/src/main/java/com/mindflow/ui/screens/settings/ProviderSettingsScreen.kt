@@ -12,18 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.mindflow.domain.model.AIProvider
 import com.mindflow.domain.model.ProviderType
-import org.koin.androidx.compose.koinViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
-import java.util.UUID
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
-/**
- * Provider settings screen for managing AI API configurations
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderSettingsScreen(
@@ -33,6 +29,7 @@ fun ProviderSettingsScreen(
     val providers by viewModel.providers.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var providerToDelete by remember { mutableStateOf<AIProvider?>(null) }
+    var editingProvider by remember { mutableStateOf<AIProvider?>(null) }
     
     Scaffold(
         topBar = {
@@ -45,7 +42,7 @@ fun ProviderSettingsScreen(
                 },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add provider")
+                        Icon(Icons.Default.Add, contentDescription = "Add Provider")
                     }
                 }
             )
@@ -74,6 +71,7 @@ fun ProviderSettingsScreen(
                     ProviderItem(
                         provider = provider,
                         onToggle = { viewModel.toggleProvider(provider) },
+                        onEdit = { editingProvider = provider },
                         onDelete = { providerToDelete = provider }
                     )
                 }
@@ -81,9 +79,9 @@ fun ProviderSettingsScreen(
         }
     }
     
-    // Add/Edit provider dialog
     if (showAddDialog) {
         ProviderConfigDialog(
+            existingProvider = null,
             onDismiss = { showAddDialog = false },
             onConfirm = { provider ->
                 viewModel.saveProvider(provider)
@@ -92,11 +90,21 @@ fun ProviderSettingsScreen(
         )
     }
     
-    // Delete confirmation
+    editingProvider?.let { provider ->
+        ProviderConfigDialog(
+            existingProvider = provider,
+            onDismiss = { editingProvider = null },
+            onConfirm = { updated ->
+                viewModel.saveProvider(updated)
+                editingProvider = null
+            }
+        )
+    }
+    
     providerToDelete?.let { provider ->
         AlertDialog(
             onDismissRequest = { providerToDelete = null },
-            title = { Text("Delete provider?") },
+            title = { Text("Delete Provider?") },
             text = { Text("This will remove ${provider.name} configuration.") },
             confirmButton = {
                 TextButton(
@@ -128,22 +136,21 @@ private fun EmptyProvidersState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Cloud,
+            imageVector = Icons.Default.Settings,
             contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            modifier = Modifier.size(72.dp),
+            tint = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No AI providers configured",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = "No AI Providers",
+            style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Add an API key to start chatting with AI",
+            text = "Add your first AI provider to get started",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onAddProvider) {
@@ -158,6 +165,7 @@ private fun EmptyProvidersState(
 private fun ProviderItem(
     provider: AIProvider,
     onToggle: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -182,9 +190,8 @@ private fun ProviderItem(
                     ProviderType.CUSTOM -> Icons.Default.Settings
                 },
                 contentDescription = null,
-                tint = if (provider.isEnabled) MaterialTheme.colorScheme.primary
-                       else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
             
             Spacer(modifier = Modifier.width(16.dp))
@@ -199,12 +206,9 @@ private fun ProviderItem(
                 Text(
                     text = provider.modelId,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = provider.type.name.replace("_", " "),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             
@@ -217,13 +221,17 @@ private fun ProviderItem(
                 IconButton(onClick = { showMenu = true }) {
                     Icon(Icons.Default.MoreVert, contentDescription = "More options")
                 }
+                
                 DropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
-                        onClick = { showMenu = false },
+                        onClick = {
+                            showMenu = false
+                            onEdit()
+                        },
                         leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
                     )
                     DropdownMenuItem(
@@ -258,18 +266,18 @@ private fun ProviderConfigDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (existingProvider != null) "Edit Provider" else "Add AI Provider") },
+        title = { Text(if (existingProvider != null) "Edit Provider" else "Add Provider") },
         text = {
             Column(
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Name") },
-                    placeholder = { Text("My OpenAI") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 
                 ExposedDropdownMenuBox(
@@ -280,29 +288,28 @@ private fun ProviderConfigDialog(
                         value = type.name.replace("_", " "),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Provider Type") },
+                        label = { Text("Type") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
                         modifier = Modifier
-                            .menuAnchor()
                             .fillMaxWidth()
+                            .menuAnchor()
                     )
                     ExposedDropdownMenu(
                         expanded = typeExpanded,
                         onDismissRequest = { typeExpanded = false }
                     ) {
-                        ProviderType.entries.forEach { t ->
+                        ProviderType.entries.forEach { pType ->
                             DropdownMenuItem(
-                                text = { Text(t.name.replace("_", " ")) },
+                                text = { Text(pType.name.replace("_", " ")) },
                                 onClick = {
-                                    type = t
+                                    type = pType
                                     typeExpanded = false
-                                    // Set default base URL
-                                    baseUrl = when (t) {
-                                        ProviderType.OPENAI_COMPATIBLE -> "https://api.openai.com/v1"
-                                        ProviderType.ANTHROPIC -> "https://api.anthropic.com"
-                                        ProviderType.GOOGLE_AI -> "https://generativelanguage.googleapis.com"
-                                        ProviderType.AZURE_OPENAI -> "https://YOUR_RESOURCE.openai.azure.com"
-                                        ProviderType.CUSTOM -> "https://api.example.com/v1"
+                                    if (pType == ProviderType.ANTHROPIC) {
+                                        baseUrl = "https://api.anthropic.com"
+                                        modelId = "claude-3-sonnet-20240229"
+                                    } else if (pType == ProviderType.GOOGLE_AI) {
+                                        baseUrl = "https://generativelanguage.googleapis.com"
+                                        modelId = "gemini-pro"
                                     }
                                 }
                             )
@@ -314,43 +321,44 @@ private fun ProviderConfigDialog(
                     value = baseUrl,
                     onValueChange = { baseUrl = it },
                     label = { Text("Base URL") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it },
                     label = { Text("API Key") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 
                 OutlinedTextField(
                     value = modelId,
                     onValueChange = { modelId = it },
                     label = { Text("Model ID") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
                 
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
                         value = maxTokens,
-                        onValueChange = { maxTokens = it.filter { c -> c.isDigit() } },
+                        onValueChange = { maxTokens = it },
                         label = { Text("Max Tokens") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
                     )
                     
                     OutlinedTextField(
                         value = temperature,
                         onValueChange = { temperature = it },
                         label = { Text("Temperature") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
                     )
                 }
             }
@@ -358,20 +366,22 @@ private fun ProviderConfigDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val provider = AIProvider(
-                        id = existingProvider?.id ?: UUID.randomUUID().toString(),
-                        name = name,
-                        type = type,
-                        baseUrl = baseUrl,
-                        apiKey = apiKey,
-                        modelId = modelId,
-                        maxTokens = maxTokens.toIntOrNull() ?: 4096,
-                        temperature = temperature.toFloatOrNull() ?: 0.7f,
-                        isEnabled = existingProvider?.isEnabled ?: true
-                    )
-                    onConfirm(provider)
-                },
-                enabled = name.isNotBlank() && apiKey.isNotBlank() && modelId.isNotBlank()
+                    if (name.isNotBlank() && apiKey.isNotBlank()) {
+                        onConfirm(
+                            AIProvider(
+                                id = existingProvider?.id ?: java.util.UUID.randomUUID().toString(),
+                                name = name,
+                                type = type,
+                                baseUrl = baseUrl,
+                                apiKey = apiKey,
+                                modelId = modelId,
+                                maxTokens = maxTokens.toIntOrNull() ?: 4096,
+                                temperature = temperature.toFloatOrNull() ?: 0.7f,
+                                isEnabled = existingProvider?.isEnabled ?: true
+                            )
+                        )
+                    }
+                }
             ) {
                 Text("Save")
             }
@@ -382,28 +392,29 @@ private fun ProviderConfigDialog(
             }
         }
     )
+}
 
 class ProviderSettingsViewModel(
     private val providerRepository: com.mindflow.domain.repository.ProviderRepository
 ) : androidx.lifecycle.ViewModel() {
     
-    val providers = providerRepository.getAllProviders()
-        .collectAsState(initial = emptyList())
+    val providers: StateFlow<List<AIProvider>> = providerRepository.getAllProviders()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     
     fun saveProvider(provider: AIProvider) {
-        androidx.lifecycle.viewModelScope.launch {
+        viewModelScope.launch {
             providerRepository.saveProvider(provider)
         }
     }
     
     fun deleteProvider(id: String) {
-        androidx.lifecycle.viewModelScope.launch {
+        viewModelScope.launch {
             providerRepository.deleteProvider(id)
         }
     }
     
     fun toggleProvider(provider: AIProvider) {
-        androidx.lifecycle.viewModelScope.launch {
+        viewModelScope.launch {
             providerRepository.saveProvider(provider.copy(isEnabled = !provider.isEnabled))
         }
     }
